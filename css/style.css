@@ -1,0 +1,108 @@
+
+
+.hidden{
+    display: none;
+}
+
+/* Reset default margins and ensure full viewport coverage */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    font-family: Arial, sans-serif;
+    position: relative;
+}
+
+/* Map container styling */
+#map {
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+}
+
+/* Header styling */
+h1 {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    z-index: 2;
+    font-size: 1.5rem;
+}
+
+/* Coordinates display styling */
+#coordinates {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    z-index: 2;
+    font-size: 1rem;
+    font-family: monospace;
+    min-width: 300px;
+    text-align: center;
+}
+
+
+/* Make the interface responsive */
+@media (max-width: 768px) {
+    h1 {
+        font-size: 1.2rem;
+        padding: 8px 16px;
+    }
+
+    #coordinates {
+        font-size: 0.9rem;
+        min-width: 280px;
+        padding: 8px 16px;
+    }
+}
+
+/* Custom marker and popup styling */
+.leaflet-popup-content-wrapper {
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+}
+
+.leaflet-popup-tip {
+    background-color: rgba(0, 0, 0, 0.8);
+}
+
+/* Improve map controls visibility */
+.leaflet-control-zoom {
+    margin: 15px !important;
+}
+
+.leaflet-control-zoom a {
+    background-color: rgba(0, 0, 0, 0.7) !important;
+    color: white !important;
+    border: none !important;
+}
+
+.leaflet-control-zoom a:hover {
+    background-color: rgba(0, 0, 0, 0.9) !important;
+}
+
+/* Attribution styling */
+.leaflet-control-attribution {
+    background-color: rgba(0, 0, 0, 0.7) !important;
+    color: white !important;
+}
+
+.leaflet-control-attribution a {
+    color: #add8e6 !important;
+}
