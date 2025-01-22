@@ -313,7 +313,7 @@
 
         // Zoom controls
         document.addEventListener('wheel', (e) => {
-            camera.position.z += e.deltaY * 0.1;
+            camera.position.z += e.deltaY * 0.005;
             if (camera.position.z < earthRadius + 1) camera.position.z = earthRadius + 1; // Allow closer zoom
             if (camera.position.z > 100) camera.position.z = 100;
         });
@@ -324,6 +324,10 @@
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
         });
+
+        document.addEventListener("keydown", ()=>{
+            rotationSpeed=rotationSpeed>0?0:0.001;
+        })
 
         // Initialize
         createStars();
