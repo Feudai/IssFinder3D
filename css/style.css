@@ -1,108 +1,147 @@
-
-
-.hidden{
-    display: none;
+:root {
+    --space-black: #0B0D17;
+    --space-blue: #1B3751;
+    --space-light: #D0D6F9;
+    --space-white: #FFFFFF;
+    --glass-bg: rgba(11, 13, 23, 0.8);
+    --glass-border: rgba(208, 214, 249, 0.2);
 }
 
-/* Reset default margins and ensure full viewport coverage */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
+.hidden {
+    display: none;
+}
+
 body {
     width: 100vw;
     height: 100vh;
     overflow: hidden;
-    font-family: Arial, sans-serif;
+    font-family: 'Inter', Arial, sans-serif;
     position: relative;
+    background: var(--space-black);
 }
 
-/* Map container styling */
 #map {
     width: 100%;
     height: 100%;
     z-index: 1;
 }
 
-/* Header styling */
 h1 {
     position: absolute;
     top: 20px;
     left: 50%;
     transform: translateX(-50%);
-    background-color: rgba(0, 0, 0, 0.7);
-    color: white;
-    padding: 10px 20px;
-    border-radius: 5px;
+    background: var(--glass-bg);
+    backdrop-filter: blur(8px);
+    color: var(--space-white);
+    padding: 15px 30px;
+    border-radius: 8px;
     z-index: 2;
     font-size: 1.5rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    border: 1px solid var(--glass-border);
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    transition: all 0.3s ease;
 }
 
-/* Coordinates display styling */
 #coordinates {
     position: absolute;
     bottom: 20px;
     left: 50%;
     transform: translateX(-50%);
-    background-color: rgba(0, 0, 0, 0.7);
-    color: white;
-    padding: 10px 20px;
-    border-radius: 5px;
+    background: var(--glass-bg);
+    backdrop-filter: blur(8px);
+    color: var(--space-light);
+    padding: 15px 30px;
+    border-radius: 8px;
     z-index: 2;
     font-size: 1rem;
     font-family: monospace;
     min-width: 300px;
     text-align: center;
-}
-
-
-/* Make the interface responsive */
-@media (max-width: 768px) {
-    h1 {
-        font-size: 1.2rem;
-        padding: 8px 16px;
-    }
-
-    #coordinates {
-        font-size: 0.9rem;
-        min-width: 280px;
-        padding: 8px 16px;
-    }
+    border: 1px solid var(--glass-border);
+    transition: all 0.3s ease;
 }
 
 /* Custom marker and popup styling */
 .leaflet-popup-content-wrapper {
-    background-color: rgba(0, 0, 0, 0.8);
-    color: white;
+    background: var(--glass-bg);
+    backdrop-filter: blur(8px);
+    color: var(--space-light);
+    border: 1px solid var(--glass-border);
 }
 
 .leaflet-popup-tip {
-    background-color: rgba(0, 0, 0, 0.8);
+    background: var(--glass-bg);
 }
 
 /* Improve map controls visibility */
 .leaflet-control-zoom {
     margin: 15px !important;
+    border-radius: 8px;
+    overflow: hidden;
 }
 
 .leaflet-control-zoom a {
-    background-color: rgba(0, 0, 0, 0.7) !important;
-    color: white !important;
-    border: none !important;
+    background: var(--glass-bg) !important;
+    backdrop-filter: blur(8px);
+    color: var(--space-light) !important;
+    border: 1px solid var(--glass-border) !important;
+    transition: all 0.3s ease;
 }
 
 .leaflet-control-zoom a:hover {
-    background-color: rgba(0, 0, 0, 0.9) !important;
+    background: rgba(208, 214, 249, 0.1) !important;
+    color: var(--space-white) !important;
 }
 
 /* Attribution styling */
 .leaflet-control-attribution {
-    background-color: rgba(0, 0, 0, 0.7) !important;
-    color: white !important;
+    background: var(--glass-bg) !important;
+    backdrop-filter: blur(8px);
+    color: var(--space-light) !important;
+    border: 1px solid var(--glass-border);
 }
 
 .leaflet-control-attribution a {
-    color: #add8e6 !important;
+    color: var(--space-white) !important;
+    transition: color 0.3s ease;
+}
+
+.leaflet-control-attribution a:hover {
+    color: var(--space-light) !important;
+}
+
+/* Make the interface responsive */
+@media (max-width: 768px) {
+    h1 {
+        font-size: 1.2rem;
+        padding: 12px 24px;
+    }
+
+    #coordinates {
+        font-size: 0.9rem;
+        min-width: 280px;
+        padding: 12px 24px;
+    }
+}
+
+@media (max-width: 480px) {
+    h1 {
+        padding: 10px 20px;
+        font-size: 1.1rem;
+    }
+
+    #coordinates {
+        padding: 10px 20px;
+        font-size: 0.8rem;
+        min-width: 250px;
+    }
 }

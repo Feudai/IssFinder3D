@@ -1,22 +1,342 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="./css/style.css">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-    <title>ISS FINDER</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=JetBrains+Mono&display=swap"
+        rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <title>ISS FINDER 3D</title>
+    <style>
+        :root {
+            --space-black: #0B0D17;
+            --space-blue: #1B3751;
+            --space-light: #D0D6F9;
+            --space-white: #FFFFFF;
+            --glass-bg: rgba(11, 13, 23, 0.8);
+            --glass-border: rgba(208, 214, 249, 0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        @keyframes twinkle {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.3;
+            }
+        }
+
+        body {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            font-family: 'Inter', Arial, sans-serif;
+            background: var(--space-black);
+            color: var(--space-white);
+        }
+
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+        }
+
+        #globe-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        .overlay-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem;
+        }
+
+        .header {
+            background: var(--glass-bg);
+            backdrop-filter: blur(8px);
+            padding: 15px 30px;
+            border-radius: 8px;
+            border: 1px solid var(--glass-border);
+            transition: all 0.3s ease;
+            pointer-events: auto;
+        }
+
+        .header:hover {
+            border-color: rgba(208, 214, 249, 0.4);
+            transform: translateY(-2px);
+        }
+
+        h1 {
+            color: var(--space-white);
+            font-size: 1.5rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+            margin: 0;
+        }
+
+        .coordinates-container {
+            background: var(--glass-bg);
+            backdrop-filter: blur(8px);
+            padding: 15px 30px;
+            border-radius: 8px;
+            min-width: 300px;
+            border: 1px solid var(--glass-border);
+            transition: all 0.3s ease;
+            margin-top: auto;
+            pointer-events: auto;
+        }
+
+        #coordinates {
+            color: var(--space-light);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1rem;
+            text-align: center;
+            margin: 0;
+        }
+
+        .controls {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(8px);
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid var(--glass-border);
+            z-index: 3;
+        }
+
+        .controls button {
+            background: rgba(208, 214, 249, 0.1);
+            border: 1px solid var(--glass-border);
+            color: var(--space-light);
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .controls button:hover {
+            background: rgba(208, 214, 249, 0.2);
+            border-color: rgba(208, 214, 249, 0.4);
+        }
+    </style>
 </head>
+
 <body>
-    <div id="map"></div>
-    <h1 class="hidden">ISS FINDER</h1>
-
-    <h2 id="coordinates" class="hidden">Coordinates :</h2>
-
+    <div class="stars"></div>
+    <div id="globe-container"></div>
+    <div class="overlay-container">
+        <div class="header">
+            <h1>ISS FINDER 3D</h1>
+        </div>
+        <div class="coordinates-container">
+            <h2 id="coordinates">Coordinates:</h2>
+        </div>
     </div>
+    <div class="controls">
+        <button id="resetView">Reset View</button>
+    </div>
+
+    <script>
+        // Create stars background
+        function createStars() {
+            const starsContainer = document.querySelector('.stars');
+            const numberOfStars = 200;
+
+            for (let i = 0; i < numberOfStars; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                const size = Math.random() * 2 + 1;
+                star.style.width = `${size}px`;
+                star.style.height = `${size}px`;
+                star.style.left = `${Math.random() * 100}%`;
+                star.style.top = `${Math.random() * 100}%`;
+                star.style.animation = `twinkle ${Math.random() * 3 + 2}s infinite ${Math.random() * 2}s`;
+                starsContainer.appendChild(star);
+            }
+        }
+
+        // Initialize Three.js scene
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.getElementById('globe-container').appendChild(renderer.domElement);
+
+        // Create Earth
+        const earthGeometry = new THREE.SphereGeometry(5, 32, 32);
+        const earthMaterial = new THREE.MeshPhongMaterial({
+            map: new THREE.TextureLoader().load('https://threejs.org/examples/textures/planets/earth_atmos_2048.jpg'),
+            bumpMap: new THREE.TextureLoader().load('https://threejs.org/examples/textures/planets/earth_normal_2048.jpg'),
+            bumpScale: 0.05,
+            specularMap: new THREE.TextureLoader().load('https://threejs.org/examples/textures/planets/earth_specular_2048.jpg'),
+            specular: new THREE.Color('grey')
+        });
+        const earth = new THREE.Mesh(earthGeometry, earthMaterial);
+        scene.add(earth);
+
+        // Add ambient light
+        const ambientLight = new THREE.AmbientLight(0x404040);
+        scene.add(ambientLight);
+
+        // Add directional light
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+        directionalLight.position.set(5, 3, 5);
+        scene.add(directionalLight);
+
+        // Position camera
+        camera.position.z = 15;
+
+        // Create ISS marker
+        const issGeometry = new THREE.SphereGeometry(0.1, 16, 16);
+        const issMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+        const issMarker = new THREE.Mesh(issGeometry, issMaterial);
+        scene.add(issMarker);
+
+        // Variables to store ISS positions
+        let issPosition = new THREE.Vector3();
+        let prevIssPosition = new THREE.Vector3();
+        let issLine = null;
+
+        // Animation
+        let rotationSpeed = 0.001;
+        function animate() {
+            requestAnimationFrame(animate);
+            earth.rotation.y += rotationSpeed;
+
+            // Update ISS marker position relative to Earth's rotation
+            const rotatedIssPosition = issPosition.clone().applyEuler(earth.rotation);
+            issMarker.position.copy(rotatedIssPosition);
+
+            // Update ISS line position relative to Earth's rotation
+            if (issLine) {
+                const rotatedPrevIssPosition = prevIssPosition.clone().applyEuler(earth.rotation);
+                issLine.geometry.setFromPoints([rotatedPrevIssPosition, rotatedIssPosition]);
+                issLine.geometry.attributes.position.needsUpdate = true;
+            }
+
+            renderer.render(scene, camera);
+        }
+
+        // Update ISS position
+        async function updateISSPosition() {
+            try {
+                const response = await fetch("http://api.open-notify.org/iss-now.json");
+                const data = await response.json();
+                const latitude = parseFloat(data.iss_position.latitude);
+                const longitude = parseFloat(data.iss_position.longitude);
+
+                // Update coordinates display
+                document.getElementById('coordinates').innerText =
+                    `Latitude: ${latitude.toFixed(4)} - Longitude: ${longitude.toFixed(4)}`;
+
+                // Convert lat/long to 3D position
+                const phi = (90 - latitude) * (Math.PI / 180);
+                const theta = (longitude + 180) * (Math.PI / 180);
+                const x = -(Math.sin(phi) * Math.cos(theta)) * 5;
+                const z = (Math.sin(phi) * Math.sin(theta)) * 5;
+                const y = (Math.cos(phi)) * 5;
+
+                // Update ISS position
+                prevIssPosition.copy(issPosition);
+                issPosition.set(x, y, z);
+
+                // Draw line on the sphere
+                if (issLine) {
+                    scene.remove(issLine);
+                }
+                const lineGeometry = new THREE.BufferGeometry().setFromPoints([prevIssPosition, issPosition]);
+                const lineMaterial = new THREE.LineBasicMaterial({ color: 0xff0000 });
+                issLine = new THREE.Line(lineGeometry, lineMaterial);
+                scene.add(issLine);
+            } catch (error) {
+                console.error("Error fetching ISS position:", error);
+            }
+        }
+
+        // Reset view
+        document.getElementById('resetView').addEventListener('click', () => {
+            camera.position.set(0, 0, 15);
+            camera.lookAt(0, 0, 0);
+        });
+
+        // Mouse controls
+        let isDragging = false;
+        let previousMousePosition = { x: 0, y: 0 };
+
+        document.addEventListener('mousedown', (e) => {
+            isDragging = true;
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (isDragging) {
+                const deltaMove = {
+                    x: e.clientX - previousMousePosition.x,
+                    y: e.clientY - previousMousePosition.y
+                };
+
+                earth.rotation.y += deltaMove.x * 0.005;
+                earth.rotation.x += deltaMove.y * 0.005;
+            }
+
+            previousMousePosition = {
+                x: e.clientX,
+                y: e.clientY
+            };
+        });
+
+        document.addEventListener('mouseup', () => {
+            isDragging = false;
+        });
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // Initialize
+        createStars();
+        animate();
+        setInterval(updateISSPosition, 5000);
+        updateISSPosition();
+    </script>
 </body>
-<script src="./js/app.js"></script>
+
 </html>
